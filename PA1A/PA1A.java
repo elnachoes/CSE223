@@ -30,7 +30,7 @@ public class PA1A
         System.out.print("TOS ->[");
         if (stack.size() != 0) 
         {
-            for (var integer : stack) 
+            for (Integer integer : stack) 
             {
                 System.out.print(integer + ",");
             }
@@ -55,7 +55,7 @@ public class PA1A
         System.out.print("HEAD ->[");
         if (queue.size() != 0) 
         {
-            for (var integer : queue) 
+            for (Integer integer : queue) 
             {
                 System.out.print(integer + ",");
             }
@@ -76,10 +76,10 @@ public class PA1A
     // ---------- MAIN FUNCTION ----------
     public static void main(String[] args)
     {
-        var isInStackMode = true;
-        var stack = new LinkedList<Integer>();
-        var queue = new LinkedList<Integer>();
-        var scanner = new Scanner(System.in);
+        boolean isInStackMode = true;
+        LinkedList stack = new LinkedList<Integer>();
+        LinkedList queue = new LinkedList<Integer>();
+        Scanner scanner = new Scanner(System.in);
         
         //printing the welcome message
         System.out.println(HELP_MESSAGE);
@@ -88,7 +88,7 @@ public class PA1A
         //the main loop will keep running as long as there is input
         while (scanner.hasNextLine()) 
         {
-            var input = scanner.nextLine();
+            String input = scanner.nextLine();
 
             //if the user inputs s shift to stack mode and show stack
             if (input.compareTo("s") == 0) 
@@ -125,7 +125,7 @@ public class PA1A
             else
             {
                 //WARNING WILL THROW ERROR IF YOU PUT IN ANYTHING ELSE : assignment's instruction you are allowed to assume input will be a number here
-                var num = Integer.parseInt(input);
+                int num = Integer.parseInt(input);
                 if (isInStackMode) stackPush(stack, num);
                 else queueInsert(queue, num);
             }
