@@ -1,5 +1,5 @@
 // Author : Corbin Martin
-// Date : 4/3/2022
+// Date : 4/6/2022
 // Summary : this is a program similar to the one I did in CSE222 with stacks and queues in linked lists but in java
 // The program has two modes where you can either manipulate a stack or a queue. 
 
@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 //interesting side note, java doesn't allow top level static classes for whatever reason.
-public class PA1A
+public class PA1B
 {
     // ---------- constants ----------
     //declaring a constant string for the help message
@@ -22,40 +22,13 @@ public class PA1A
         "x            Quit\n" + 
         "?            Display help";
 
-    // ---------- stack functions ----------
-    //this function prints the stack
-    static void showStack(LinkedList<Integer> stack) { System.out.println("TOS ->" + stack); }
-
-    //this function pushes a new element to the top of the stack
-    static void stackPush(LinkedList<Integer> stack, int num) { stack.push(num); }
-    
-    //this function checks if the stack is empty or not
-    static boolean stackIsEmpty(LinkedList<Integer> stack) { return (stack.size() == 0) ? (true) : (false); }
-    
-    //this function pops the top element of the stack
-    static int doStackPop(LinkedList<Integer> stack) { return stack.pop(); }
-
-
-    // ---------- queue functions ----------
-    //this function prints the queue
-    static void showQueue(LinkedList<Integer> queue) { System.out.println("HEAD ->" + queue + "<-TAIL"); }
-
-    //this function adds to the queue
-    static void queueInsert(LinkedList<Integer> queue, int num) { queue.add(num); }
-    
-    //this function checks if the queue is empty
-    static boolean queueIsEmpty(LinkedList<Integer> queue) { return (queue.size() == 0) ? (true) : (false); }
-    
-    //this function removes the first element int he queue
-    static int doQueueRemove(LinkedList<Integer> queue) { return queue.removeFirst(); }
-
 
     // ---------- MAIN FUNCTION ----------
     public static void main(String[] args)
     {
         boolean isInStackMode = true;
-        LinkedList<Integer> stack = new LinkedList<Integer>();
-        LinkedList<Integer> queue = new LinkedList<Integer>();
+        MyStack stack = new MyStack();
+        MyQueue queue = new MyQueue();
         Scanner scanner = new Scanner(System.in);
         
         //printing the welcome message
@@ -71,20 +44,20 @@ public class PA1A
             if (input.compareTo("s") == 0) 
             {
                 isInStackMode = true;
-                showStack(stack);
+                System.out.println(stack.toString());
             }
             //if the user inputs q shift to queue mode and show queue
             else if (input.compareTo("q") == 0) 
             {
                 isInStackMode = false;
-                showQueue(queue);
+                System.out.println(queue.toString());;
             }
             //if the user input enter pop from the stack or remove from the queue unless they are empty
             else if (input.compareTo("") == 0) 
             {
-                if (isInStackMode && !stackIsEmpty(stack)) System.out.println(doStackPop(stack));
-                else if (isInStackMode && stackIsEmpty(stack)) System.out.println("Stack is empty");
-                else if (!isInStackMode && !queueIsEmpty(queue)) System.out.println(doQueueRemove(queue));
+                if (isInStackMode && !stack.isEmpty()) System.out.println(stack.pop());
+                else if (isInStackMode && stack.isEmpty()) System.out.println("Stack is empty");
+                else if (!isInStackMode && !queue.isEmpty()) System.out.println(queue.remove());
                 else System.out.println("Queue is empty");
             }
             //if the user input x break out of the main loop and stop the program
@@ -101,10 +74,17 @@ public class PA1A
             //if the user put in anything else assume it is a number and push if in stack mode else insert into the stack
             else
             {
-                //WARNING WILL THROW ERROR IF YOU PUT IN ANYTHING ELSE : assignment's instruction you are allowed to assume input will be a number here
-                int num = Integer.parseInt(input);
-                if (isInStackMode) stackPush(stack, num);
-                else queueInsert(queue, num);
+
+                try 
+                {
+                    int num = Integer.parseInt(input);
+                    if (isInStackMode) stack.push(num);
+                    else queue.insert(num);
+                } 
+                catch (Exception e) 
+                {
+
+                }
             }
             System.out.print(">");
         }
