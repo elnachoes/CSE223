@@ -83,7 +83,7 @@ public class PA1B
                 } 
                 catch (Exception e) 
                 {
-
+                    System.out.println("Illegal number");
                 }
             }
             System.out.print(">");
