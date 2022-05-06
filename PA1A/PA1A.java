@@ -30,7 +30,7 @@ public class PA1A
     static void stackPush(LinkedList<Integer> stack, int num) { stack.push(num); }
     
     //this function checks if the stack is empty or not
-    static boolean stackIsEmpty(LinkedList<Integer> stack) { return (stack.size() == 0) ? (true) : (false); }
+    static boolean stackIsEmpty(LinkedList<Integer> stack) { return stack.size() == 0; }
     
     //this function pops the top element of the stack
     static int doStackPop(LinkedList<Integer> stack) { return stack.pop(); }
@@ -44,7 +44,7 @@ public class PA1A
     static void queueInsert(LinkedList<Integer> queue, int num) { queue.add(num); }
     
     //this function checks if the queue is empty
-    static boolean queueIsEmpty(LinkedList<Integer> queue) { return (queue.size() == 0) ? (true) : (false); }
+    static boolean queueIsEmpty(LinkedList<Integer> queue) { return queue.size() == 0; }
     
     //this function removes the first element int he queue
     static int doQueueRemove(LinkedList<Integer> queue) { return queue.removeFirst(); }
@@ -94,10 +94,7 @@ public class PA1A
                 break;
             }
             //if the user put in ? print the help message
-            else if (input.compareTo("?") == 0) 
-            {
-                System.out.println(HELP_MESSAGE);
-            }
+            else if (input.compareTo("?") == 0) System.out.println(HELP_MESSAGE);
             //if the user put in anything else assume it is a number and push if in stack mode else insert into the stack
             else
             {

@@ -4,7 +4,6 @@
 // The program has two modes where you can either manipulate a stack or a queue. 
 
 import java.lang.System;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 //interesting side note, java doesn't allow top level static classes for whatever reason.
@@ -67,10 +66,7 @@ public class PA1B
                 break;
             }
             //if the user put in ? print the help message
-            else if (input.compareTo("?") == 0) 
-            {
-                System.out.println(HELP_MESSAGE);
-            }
+            else if (input.compareTo("?") == 0) System.out.println(HELP_MESSAGE);
             //if the user put in anything else assume it is a number and push if in stack mode else insert into the stack
             else
             {
@@ -81,10 +77,7 @@ public class PA1B
                     if (isInStackMode) stack.push(num);
                     else queue.insert(num);
                 } 
-                catch (Exception e) 
-                {
-                    System.out.println("Illegal number");
-                }
+                catch (Exception e) { System.out.println("Illegal number"); }
             }
             System.out.print(">");
         }
