@@ -128,7 +128,7 @@ public class DecisionTree
         printWriter.println(currentNode.text);
         SaveTree(currentNode.yesChild, printWriter);
         SaveTree(currentNode.noChild, printWriter);
-        return;
+        return; 
     }
     
     //this is a recursive function that will build the entire decision tree recursively
