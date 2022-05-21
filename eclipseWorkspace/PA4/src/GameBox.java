@@ -14,4 +14,13 @@ public class GameBox {
     public Point topRightCorner = null;
     public Point bottomLeftCorner = null;
     public Point bottomRightCorner = null;
+
+    public String capturedPlayerInitial = null;
+
+    public void CheckIfClaimed(boolean isPlayer1Turn){
+        if (isBottomSideClaimed && isLeftSideClaimed && isRightSideClaimed && isTopSideClaimed) {
+            isClaimed = true;
+            if (isPlayer1Turn) isClaimedByPlayer1 = true;
+        }
+    }
 }

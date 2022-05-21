@@ -1,7 +1,4 @@
 import javax.swing.JPanel;
-
-import org.w3c.dom.events.MouseEvent;
-
 import java.awt.Point;
 import java.io.Console;
 import java.awt.Graphics;
@@ -9,15 +6,22 @@ import java.awt.Graphics;
 public class GameBoard extends JPanel {
     //length of the columns
     //TODO : MAKE THESE VARIABLES LATER ON SO THAT YOU CAN PICK BOARD SIZE
-    private final int BOX_SIZE = 100;
+    private final int BOX_SIZE = 70;
     private final int BOARD_SIZE = 8;
     private final int POINT_DIAMETER = 15;
+
+
+    private boolean isPlayer1Turn = true;
+
     
+    private PlayerScoreboard testplayer = null;
+
     //array of column points
     private GameBox boardBoxes[][];
 
-    public GameBoard() {
+    public GameBoard(PlayerScoreboard player) {
         //the number of boxes inside of a grid of lines 9x9 will be 8x8 so that is why it is instantiated this way
+        testplayer = player;
         boardBoxes = new GameBox[BOARD_SIZE][BOARD_SIZE]; 
         InitGameBoard();
     }
@@ -39,9 +43,9 @@ public class GameBoard extends JPanel {
         }
     }
 
-    public void HandleMouseClick(int x, int y) {
-
-
+    //this function will update the boxes array
+    //returns true if the sides selected on the boxes were not already selected
+    private boolean UpdateBoxes(int x, int y){
         //TODO : DETERMINE IF THE BOXES HAVE ALREADY BEEN CHECKED OR NOT
 
         int column = x / BOX_SIZE;
@@ -57,14 +61,15 @@ public class GameBoard extends JPanel {
 
         //if the mouse click is in the top left corner
         if (Math.round(columnDistanceFromLeft) == 0 && Math.round(rowDistanceFromTop) == 0) {
-
             //if the click was closer to the left side
             if (columnDistanceFromLeft <= rowDistanceFromTop) {
+                if (boardBoxes[column][row].isLeftSideClaimed) return false;
                 boardBoxes[column][row].isLeftSideClaimed = true;
                 if (!(column - 1 < 0)) boardBoxes[column - 1][row].isRightSideClaimed = true;
             }
             //else the mouse click was closer to the top side
             else {
+                if (boardBoxes[column][row].isTopSideClaimed) return false;
                 boardBoxes[column][row].isTopSideClaimed = true;
                 if (!(row - 1 < 0)) boardBoxes[column][row - 1].isBottomSideClaimed = true;
             }
@@ -73,50 +78,67 @@ public class GameBoard extends JPanel {
         //top right corner
         if (Math.round(columnDistanceFromLeft) == 1 && Math.round(rowDistanceFromTop) == 0) {
             if (1 - columnDistanceFromLeft <= rowDistanceFromTop) {
-
+                if (boardBoxes[column][row].isRightSideClaimed) return false;
                 boardBoxes[column][row].isRightSideClaimed = true;
                 if (!(column + 1 >= boardBoxes.length)) boardBoxes[column + 1][row].isLeftSideClaimed = true;
             } 
             else {
+                if (boardBoxes[column][row].isTopSideClaimed) return false;
                 boardBoxes[column][row].isTopSideClaimed = true;
                 if (!(row - 1 < 0)) boardBoxes[column][row - 1].isBottomSideClaimed = true;
             }
         }
-
+        
         //bottom left corner
         if (Math.round(columnDistanceFromLeft) == 0 && Math.round(rowDistanceFromTop) == 1) {
             if (columnDistanceFromLeft <= 1 - rowDistanceFromTop) {
+                if (boardBoxes[column][row].isLeftSideClaimed) return false;
                 boardBoxes[column][row].isLeftSideClaimed = true;
                 if (!(column - 1 < 0)) boardBoxes[column - 1][row].isRightSideClaimed = true;
             } 
             else {
+                if (boardBoxes[column][row].isBottomSideClaimed) return false;
                 boardBoxes[column][row].isBottomSideClaimed = true;
                 if (!(row + 1 >= boardBoxes.length)) boardBoxes[column][row + 1].isTopSideClaimed = true;
             }
         }
-
+        
         //bottom right corner
         if (Math.round(columnDistanceFromLeft) == 1 && Math.round(rowDistanceFromTop) == 1) {
             if (1 - columnDistanceFromLeft <= 1 - rowDistanceFromTop) {
+                if (boardBoxes[column][row].isRightSideClaimed) return false;
                 boardBoxes[column][row].isRightSideClaimed = true;
                 if (!(column + 1 >= boardBoxes.length)) boardBoxes[column + 1][row].isLeftSideClaimed = true;
             } 
             else {
+                if (boardBoxes[column][row].isBottomSideClaimed) return false;
                 boardBoxes[column][row].isBottomSideClaimed = true;
-                if (!(row + 1 >= boardBoxes.length)) boardBoxes[column][row + 1].isTopSideClaimed = true;
+                boardBoxes[column][row].CheckIfClaimed(isPlayer1Turn);
+                if (!(row + 1 >= boardBoxes.length)) {
+                    boardBoxes[column][row + 1].isTopSideClaimed = true;
+                    boardBoxes[column][row + 1].CheckIfClaimed(isPlayer1Turn);
+                }
             }
         }
 
-        DrawBoard();
+        return true;
     }
 
-    //this function will setup ALL the data necessary for 
-    public void DrawBoard() {
-        //call the repaint method which will call the paint method
+
+    public void HandleMouseClick(int x, int y) {
+
+        boolean legalMove = UpdateBoxes(x, y);
+
+        if (!legalMove) return;
+
+        testplayer.score++;
+        testplayer.repaint();
+
         repaint();
     }
 
     //this function will draw the 
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
 
