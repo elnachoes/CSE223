@@ -51,8 +51,8 @@ public class GameBoard extends JPanel {
         int column = x / BOX_SIZE;
         int row = y / BOX_SIZE;
 
-
         //because there will be 9 columns for an 8x8 board this keeps you from indexing out of range if you click at the edges
+        //TODO : FIX THIS IT DOESN'T WORK IF YOU REALLY CLICK OUT THERE
         if (column == boardBoxes.length) --column;
         if (row == boardBoxes.length) --row;
 
@@ -64,14 +64,26 @@ public class GameBoard extends JPanel {
             //if the click was closer to the left side
             if (columnDistanceFromLeft <= rowDistanceFromTop) {
                 if (boardBoxes[column][row].isLeftSideClaimed) return false;
+                
                 boardBoxes[column][row].isLeftSideClaimed = true;
-                if (!(column - 1 < 0)) boardBoxes[column - 1][row].isRightSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+                
+                if (!(column - 1 < 0)) {
+                    boardBoxes[column - 1][row].isRightSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column - 1][row]);
+                }
             }
             //else the mouse click was closer to the top side
             else {
                 if (boardBoxes[column][row].isTopSideClaimed) return false;
+                
                 boardBoxes[column][row].isTopSideClaimed = true;
-                if (!(row - 1 < 0)) boardBoxes[column][row - 1].isBottomSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+                
+                if (!(row - 1 < 0)) {
+                    boardBoxes[column][row - 1].isBottomSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column][row - 1]);
+                }
             }
         }
 
@@ -79,13 +91,25 @@ public class GameBoard extends JPanel {
         if (Math.round(columnDistanceFromLeft) == 1 && Math.round(rowDistanceFromTop) == 0) {
             if (1 - columnDistanceFromLeft <= rowDistanceFromTop) {
                 if (boardBoxes[column][row].isRightSideClaimed) return false;
+                
                 boardBoxes[column][row].isRightSideClaimed = true;
-                if (!(column + 1 >= boardBoxes.length)) boardBoxes[column + 1][row].isLeftSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+
+                if (!(column + 1 >= boardBoxes.length)) {
+                    boardBoxes[column + 1][row].isLeftSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column + 1][row]);
+                }
             } 
             else {
                 if (boardBoxes[column][row].isTopSideClaimed) return false;
+                
                 boardBoxes[column][row].isTopSideClaimed = true;
-                if (!(row - 1 < 0)) boardBoxes[column][row - 1].isBottomSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+
+                if (!(row - 1 < 0)) {
+                    boardBoxes[column][row - 1].isBottomSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column][row - 1]);
+                }
             }
         }
         
@@ -93,13 +117,25 @@ public class GameBoard extends JPanel {
         if (Math.round(columnDistanceFromLeft) == 0 && Math.round(rowDistanceFromTop) == 1) {
             if (columnDistanceFromLeft <= 1 - rowDistanceFromTop) {
                 if (boardBoxes[column][row].isLeftSideClaimed) return false;
+                
                 boardBoxes[column][row].isLeftSideClaimed = true;
-                if (!(column - 1 < 0)) boardBoxes[column - 1][row].isRightSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+
+                if (!(column - 1 < 0)) {
+                    boardBoxes[column - 1][row].isRightSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column - 1][row]);
+                } 
             } 
             else {
                 if (boardBoxes[column][row].isBottomSideClaimed) return false;
+                
                 boardBoxes[column][row].isBottomSideClaimed = true;
-                if (!(row + 1 >= boardBoxes.length)) boardBoxes[column][row + 1].isTopSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+
+                if (!(row + 1 >= boardBoxes.length)) {
+                    boardBoxes[column][row + 1].isTopSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column][row + 1]);
+                }
             }
         }
         
@@ -107,21 +143,44 @@ public class GameBoard extends JPanel {
         if (Math.round(columnDistanceFromLeft) == 1 && Math.round(rowDistanceFromTop) == 1) {
             if (1 - columnDistanceFromLeft <= 1 - rowDistanceFromTop) {
                 if (boardBoxes[column][row].isRightSideClaimed) return false;
+                
                 boardBoxes[column][row].isRightSideClaimed = true;
-                if (!(column + 1 >= boardBoxes.length)) boardBoxes[column + 1][row].isLeftSideClaimed = true;
+                UpdateScoreboard(boardBoxes[column][row]);
+                
+                if (!(column + 1 >= boardBoxes.length)) {
+                    boardBoxes[column + 1][row].isLeftSideClaimed = true;
+                    UpdateScoreboard(boardBoxes[column + 1][row]);
+                }
             } 
             else {
                 if (boardBoxes[column][row].isBottomSideClaimed) return false;
+                
                 boardBoxes[column][row].isBottomSideClaimed = true;
-                boardBoxes[column][row].CheckIfClaimed(isPlayer1Turn);
+                UpdateScoreboard(boardBoxes[column][row]);
+                
                 if (!(row + 1 >= boardBoxes.length)) {
                     boardBoxes[column][row + 1].isTopSideClaimed = true;
-                    boardBoxes[column][row + 1].CheckIfClaimed(isPlayer1Turn);
+                    UpdateScoreboard(boardBoxes[column][row + 1]);
                 }
             }
         }
 
         return true;
+    }
+
+
+    private void UpdateScoreboard(GameBox box) {
+        box.CheckIfClaimed(isPlayer1Turn);
+        if (box.isClaimed) {
+            if (isPlayer1Turn) {
+                testplayer.score++;
+            } 
+            else {
+                
+            }
+        }
+
+        testplayer.repaint();
     }
 
 
@@ -131,9 +190,7 @@ public class GameBoard extends JPanel {
 
         if (!legalMove) return;
 
-        testplayer.score++;
-        testplayer.repaint();
-
+        
         repaint();
     }
 
