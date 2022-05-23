@@ -1,5 +1,6 @@
 import javax.swing.JLabel;
 import java.awt.Graphics;
+import java.awt.Component;
 
 public class TurnScoreboard extends JLabel{
     private boolean isPlayer1Turn = true;
@@ -7,9 +8,18 @@ public class TurnScoreboard extends JLabel{
     private PlayerScoreboard player1Scoreboard = null;
     private PlayerScoreboard player2Scoreboard = null;
     
-    public void InitTurnScoreboard(PlayerScoreboard player1Scoreboard, PlayerScoreboard player2Scoreboard){
-        this.player1Scoreboard = player1Scoreboard;
-        this.player2Scoreboard = player2Scoreboard;
+    public void InitTurnScoreboard(){
+        for (Component component: getParent().getComponents()) {
+            if (component.getName() == null) continue;
+
+            if (component.getName().compareTo("player1Scoreboard") == 0) {
+                this.player1Scoreboard = (PlayerScoreboard)component;
+            }
+            if (component.getName().compareTo("player2Scoreboard") == 0) {
+                this.player2Scoreboard = (PlayerScoreboard)component;
+            }
+        }
+
         isPlayer1Turn = true;
         repaint();
     }

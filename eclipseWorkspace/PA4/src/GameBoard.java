@@ -1,19 +1,28 @@
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Point;
+import java.awt.Component;
 import java.awt.Graphics;
 
 public class GameBoard extends JPanel {
+	public GameBoard() {
+	}
     //length of the columns
     //TODO : MAKE THESE VARIABLES LATER ON SO THAT YOU CAN PICK BOARD SIZE
-    private final int BOX_SIZE = 70;
+    private final int BOX_SIZE = 50;
     private final int POINT_DIAMETER = 15;
-    private final int MAX_BOARD_SIZE = 8;
+    private final int MAX_BOARD_SIZE = 12;
+    private final int DEFAULT_BOARD_SIZE = 8;
 
-    private int boardSize = MAX_BOARD_SIZE;
+    private int boardSize = DEFAULT_BOARD_SIZE;
 
     private PlayerScoreboard player1Scoreboard = null;
     private PlayerScoreboard player2Scoreboard = null;
     private TurnScoreboard turnScoreboard = null;
+    private NotificationBoard notificationBoard = null;
+    private JButton okButton = null;
+
+    private boolean bonusTurn = false;
 
     //array of column points
     private GameBox boardBoxes[][] = null;
@@ -25,10 +34,28 @@ public class GameBoard extends JPanel {
     }
     
     //this function will set up the game board at the start of the game
-    public void InitGameBoard(PlayerScoreboard player1Scoreboard, PlayerScoreboard player2Scoreboard, TurnScoreboard turnScoreboard) {
-        this.player1Scoreboard = player1Scoreboard;
-        this.player2Scoreboard = player2Scoreboard;
-        this.turnScoreboard = turnScoreboard;
+    public void InitGameBoard() {
+        //get the sibling components as you would in a game engine like Godot
+        //this will allow GameBoard to have a reference to multiple of the other components and call methods on them
+        for (Component component : getParent().getComponents()) {
+            if (component.getName() == null) continue;
+
+            if (component.getName().compareTo("player1Scoreboard") == 0) {
+                this.player1Scoreboard = (PlayerScoreboard)component;
+            }
+            if (component.getName().compareTo("player2Scoreboard") == 0) {
+                this.player2Scoreboard = (PlayerScoreboard)component;
+            }
+            if (component.getName().compareTo("notificationBoard") == 0) {
+                this.notificationBoard = (NotificationBoard)component;
+            }
+            if (component.getName().compareTo("turnScoreboard") == 0) {
+                this.turnScoreboard = (TurnScoreboard)component;
+            }
+            if (component.getName().compareTo("okButton") == 0) {
+                this.okButton = (JButton)component;
+            }
+        }
 
         boardBoxes = new GameBox[boardSize][boardSize]; 
         for (int i = 0; i < boardSize; i++) {
@@ -50,11 +77,15 @@ public class GameBoard extends JPanel {
     //this function will update the boxes array
     //returns true if the sides selected on the boxes were not already selected
     private boolean UpdateBoxes(int x, int y){
+        if (((float)x / BOX_SIZE) + (2.f/BOX_SIZE) > (float)boardBoxes.length + .5f || ((float)y / BOX_SIZE) + (2.f/BOX_SIZE) > (float)boardBoxes.length + .5f) return false;
+        
         int column = x / BOX_SIZE;
         int row = y / BOX_SIZE;
 
+        boolean firstScoreboardUpdate = false;
+        boolean secondScoreboardUpdate = false;
+
         //because there will be 9 columns for an 8x8 board this keeps you from indexing out of range if you click at the edges
-        //TODO : FIX THIS IT DOESN'T WORK IF YOU REALLY CLICK OUT THERE
         if (column == boardBoxes.length) --column;
         if (row == boardBoxes.length) --row;
 
@@ -66,14 +97,15 @@ public class GameBoard extends JPanel {
         if (Math.round(columnDistanceFromLeft) == 0 && Math.round(rowDistanceFromTop) == 0) {
             //if the click was closer to the left side
             if (columnDistanceFromLeft <= rowDistanceFromTop) {
+                //if that box was already claimed 
                 if (boardBoxes[column][row].isLeftSideClaimed) return false;
                 
                 boardBoxes[column][row].isLeftSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
                 
                 if (!(column - 1 < 0)) {
                     boardBoxes[column - 1][row].isRightSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column - 1][row]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column - 1][row]);
                 }
             }
             //else the mouse click was closer to the top side
@@ -81,11 +113,11 @@ public class GameBoard extends JPanel {
                 if (boardBoxes[column][row].isTopSideClaimed) return false;
                 
                 boardBoxes[column][row].isTopSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
                 
                 if (!(row - 1 < 0)) {
                     boardBoxes[column][row - 1].isBottomSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column][row - 1]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row - 1]);
                 }
             }
         }
@@ -96,22 +128,22 @@ public class GameBoard extends JPanel {
                 if (boardBoxes[column][row].isRightSideClaimed) return false;
                 
                 boardBoxes[column][row].isRightSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
 
                 if (!(column + 1 >= boardBoxes.length)) {
                     boardBoxes[column + 1][row].isLeftSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column + 1][row]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column + 1][row]);
                 }
             } 
             else {
                 if (boardBoxes[column][row].isTopSideClaimed) return false;
                 
                 boardBoxes[column][row].isTopSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
 
                 if (!(row - 1 < 0)) {
                     boardBoxes[column][row - 1].isBottomSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column][row - 1]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row - 1]);
                 }
             }
         }
@@ -122,22 +154,22 @@ public class GameBoard extends JPanel {
                 if (boardBoxes[column][row].isLeftSideClaimed) return false;
                 
                 boardBoxes[column][row].isLeftSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
 
                 if (!(column - 1 < 0)) {
                     boardBoxes[column - 1][row].isRightSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column - 1][row]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column - 1][row]);
                 } 
             } 
             else {
                 if (boardBoxes[column][row].isBottomSideClaimed) return false;
                 
                 boardBoxes[column][row].isBottomSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
 
                 if (!(row + 1 >= boardBoxes.length)) {
                     boardBoxes[column][row + 1].isTopSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column][row + 1]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row + 1]);
                 }
             }
         }
@@ -148,35 +180,39 @@ public class GameBoard extends JPanel {
                 if (boardBoxes[column][row].isRightSideClaimed) return false;
                 
                 boardBoxes[column][row].isRightSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
                 
                 if (!(column + 1 >= boardBoxes.length)) {
                     boardBoxes[column + 1][row].isLeftSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column + 1][row]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column + 1][row]);
                 }
             } 
             else {
                 if (boardBoxes[column][row].isBottomSideClaimed) return false;
                 
                 boardBoxes[column][row].isBottomSideClaimed = true;
-                UpdateScoreboard(boardBoxes[column][row]);
+                firstScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row]);
                 
                 if (!(row + 1 >= boardBoxes.length)) {
                     boardBoxes[column][row + 1].isTopSideClaimed = true;
-                    UpdateScoreboard(boardBoxes[column][row + 1]);
+                    secondScoreboardUpdate = UpdateScoreboard(boardBoxes[column][row + 1]);
                 }
+
             }
         }
+
+        if (firstScoreboardUpdate || secondScoreboardUpdate) bonusTurn = true;
+        else bonusTurn = false;
 
         return true;
     }
 
 
-    private void UpdateScoreboard(GameBox box) {
+    private boolean UpdateScoreboard(GameBox box) {
         //determine if the just updated box has been fully claimed
-        if (turnScoreboard == null) return;
-        if(player1Scoreboard == null) return;
-        if(player2Scoreboard == null) return;
+        if (turnScoreboard == null) return false;
+        if (player1Scoreboard == null) return false;
+        if (player2Scoreboard == null) return false;
         box.CheckIfClaimed(turnScoreboard.GetPlayerTurn());
         //if it has been claimed update the scoreboards
         if (box.isClaimed) {
@@ -189,8 +225,11 @@ public class GameBoard extends JPanel {
             //repaint the scoreboards
             player1Scoreboard.repaint();
             player2Scoreboard.repaint();
+            return true;
         }
+        return false;
     }
+    
 
     public boolean CheckIfGameOver(){
         for (GameBox[] gameBoxs : boardBoxes) {
@@ -204,7 +243,6 @@ public class GameBoard extends JPanel {
     }
 
     public void HandleMouseClick(int x, int y) {
-
         if (turnScoreboard == null) return;
         if (player1Scoreboard == null) return;
         if (player2Scoreboard == null) return;
@@ -216,15 +254,25 @@ public class GameBoard extends JPanel {
         //TODO : make this a pop up
         if (CheckIfGameOver()){
             if (player1Scoreboard.score > player2Scoreboard.score) {
-                System.out.println("PLAYER ONE WINS!");
+                notificationBoard.message = player1Scoreboard.GetPlayerName() + " WINS!";
             } 
-            else {
-                System.out.println("PLAYER TWO WINS!");
+            else if (player1Scoreboard.score < player2Scoreboard.score) {
+                notificationBoard.message = player2Scoreboard.GetPlayerName() + " WINS!";
             }
+            else {
+                notificationBoard.message = "TIE!";
+            }
+
+            notificationBoard.setVisible(true);
+            notificationBoard.repaint();
+            okButton.setVisible(true);
         }
 
-        turnScoreboard.SwitchTurn();
-        turnScoreboard.repaint();
+        if (!bonusTurn) {
+            turnScoreboard.SwitchTurn();
+            turnScoreboard.repaint();
+        }
+        
         
         repaint();
     }

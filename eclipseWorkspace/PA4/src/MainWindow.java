@@ -20,6 +20,8 @@ public class MainWindow extends JFrame {
     private JTextField setPlayer2NameInput = null;
     private TurnScoreboard turnScoreboard = null;
     private JTextField setBoardSizeInput;
+    private NotificationBoard notificationBoard = null;
+    private JButton okButton = null;
 
     /**
      * Launch the application.
@@ -50,35 +52,59 @@ public class MainWindow extends JFrame {
         setContentPane(contentPane);
         contentPane.setLayout(null);
         
-        JButton resetGameButton = new JButton("reset game");
-        resetGameButton.addMouseListener(new MouseAdapter() {
+        notificationBoard = new NotificationBoard();
+        notificationBoard.setText("notificationBoard");
+        notificationBoard.setForeground(Color.WHITE);
+        notificationBoard.setBackground(Color.RED);
+        notificationBoard.setBounds(613, 235, 427, 90);
+        contentPane.add(notificationBoard);
+        notificationBoard.setVisible(false);
+        
+        okButton = new JButton("OK");
+        okButton.setText("okButton");
+        okButton.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mousePressed(MouseEvent e) {
+                notificationBoard.message =null;
+        		notificationBoard.setVisible(false);
+                okButton.setVisible(false);
+        	}
+        });
+        okButton.setBounds(767, 336, 89, 23);
+        contentPane.add(okButton);
+        okButton.setVisible(false);
+
+        JButton startGameButton = new JButton("start game");
+        startGameButton.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mousePressed(MouseEvent e) {
         		NewGame();
         	}
         });
-        resetGameButton.setBounds(613, 40, 427, 23);
-        contentPane.add(resetGameButton);
+        startGameButton.setBounds(613, 40, 427, 23);
+        contentPane.add(startGameButton);
 
         
         player1Scoreboard = new PlayerScoreboard("Player 1");
+        player1Scoreboard.setName("player1Scoreboard");
         player1Scoreboard.setForeground(Color.WHITE);
         player1Scoreboard.setBounds(613, 545, 200, 23);
         contentPane.add(player1Scoreboard);
         
         
         player2Scoreboard = new PlayerScoreboard("Player 2");
+        player2Scoreboard.setName("player2Scoreboard");
         player2Scoreboard.setForeground(Color.WHITE);
         player2Scoreboard.setBounds(613, 579, 200, 23);
         contentPane.add(player2Scoreboard);
         
-        
         turnScoreboard = new TurnScoreboard();
+        turnScoreboard.setName("turnScoreboard");
         turnScoreboard.setBounds(613, 511, 291, 23);
         contentPane.add(turnScoreboard);
 
-
         gameBoard = new GameBoard();
+        gameBoard.setName("gameBoard");
         gameBoard.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -150,7 +176,10 @@ public class MainWindow extends JFrame {
                         gameBoard.SetBoardSize(Integer.parseInt(setBoardSizeInput.getText()));
                     }
                     catch (Exception f) { 
-                        System.out.println("you have to put in a number for the board size"); 
+                        notificationBoard.message = "you have to put in a number for the board size";
+                        notificationBoard.setVisible(true);
+                        notificationBoard.repaint();
+                        okButton.setVisible(true);
                         return;
                     }
                     NewGame();
@@ -161,7 +190,7 @@ public class MainWindow extends JFrame {
         setBoardSizeInput.setBounds(613, 74, 243, 20);
         contentPane.add(setBoardSizeInput);
 
-        JButton setBoardSize = new JButton("Set Board Size (max 8)");
+        JButton setBoardSize = new JButton("Set Board Size (max 12)");
         setBoardSize.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mousePressed(MouseEvent e) {
@@ -170,10 +199,13 @@ public class MainWindow extends JFrame {
                     gameBoard.SetBoardSize(Integer.parseInt(setBoardSizeInput.getText()));
                 }
                 catch (Exception f) { 
-                    System.out.println("you have to put in a number for the board size"); 
+                    notificationBoard.message = "you have to put in a number for the board size";
+                    notificationBoard.setVisible(true);
+                    notificationBoard.repaint();
+                    okButton.setVisible(true);
                     return;
                 }
-                NewGame();
+                NewGame(); 
         	}
         });
         setBoardSize.setBounds(866, 74, 174, 23);
@@ -183,9 +215,9 @@ public class MainWindow extends JFrame {
     //this function will initialize all the components of the game
     private void NewGame() {
         //initialize the components themselves
-        player1Scoreboard.InitPlayerScoreboard(turnScoreboard);
-        player2Scoreboard.InitPlayerScoreboard(turnScoreboard);
-        turnScoreboard.InitTurnScoreboard(player1Scoreboard, player2Scoreboard);
-        gameBoard.InitGameBoard(player1Scoreboard, player2Scoreboard, turnScoreboard);
+        player1Scoreboard.InitPlayerScoreboard();
+        player2Scoreboard.InitPlayerScoreboard();
+        turnScoreboard.InitTurnScoreboard();
+        gameBoard.InitGameBoard();
     }
 }
