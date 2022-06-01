@@ -11,7 +11,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 //this is the main jframe class that contains the entire window
-public class MainWindow extends JFrame {
+//author : corbin martin
+public class Dots extends JFrame {
     //setting up the jcompnent variables that will be used for the jframe
     private GameBoard gameBoard = null;
     private PlayerScoreboard player2Scoreboard = null;
@@ -29,7 +30,7 @@ public class MainWindow extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    MainWindow frame = new MainWindow();
+                    Dots frame = new Dots();
                     frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -42,7 +43,7 @@ public class MainWindow extends JFrame {
     //some of the initialization of the elements such as the scoreboards and gameboard need to all be instantiated before the game can begin
     //this is because each of those custom component classes need references to each other to invoke methods on each other
     //once everything is partially initialized the NewGame method will be called and it will start the game
-    public MainWindow() {
+    public Dots() {
     	setTitle("Dots!");
 
         //set up the main jpanel
@@ -60,7 +61,7 @@ public class MainWindow extends JFrame {
         notificationBoard.setName("notificationBoard");
         notificationBoard.setForeground(Color.WHITE);
         notificationBoard.setBackground(Color.RED);
-        notificationBoard.setBounds(613, 235, 427, 90);
+        notificationBoard.setBounds(613, 363, 430, 90);
         notificationBoard.setVisible(false);
         contentPane.add(notificationBoard);
         
@@ -77,7 +78,7 @@ public class MainWindow extends JFrame {
                 okButton.setVisible(false);
             }
         });
-        okButton.setBounds(613, 336, 89, 23);
+        okButton.setBounds(954, 464, 89, 23);
         contentPane.add(okButton);
         okButton.setVisible(false);
 
