@@ -2,7 +2,7 @@ import java.awt.Point;
 
 //this class will be the object that will store the data for what boxes have been filled in the game of Dots
 //it is basically just a pile of booleans that will get used for each box on the GameBoard class
-//author : corbin martin
+//AUTHORS : Corbin Martin, Dakota Schaeffer, Muhamad Al-zughir
 public class GameBox {
     //booleans for if the sides are claimed
     public boolean isLeftSideClaimed = false;

@@ -3,7 +3,7 @@ import java.awt.Graphics;
 import java.awt.Component;
 
 //this class is a scoreboard for a player that knows what their score is
-//author : corbin martin
+//AUTHORS : Corbin Martin, Dakota Schaeffer, Muhamad Al-zughir
 public class PlayerScoreboard extends JLabel{
     public int score = 0;
     private String playerName = null;

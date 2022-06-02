@@ -3,7 +3,7 @@ import java.awt.Graphics;
 import java.awt.Component;
 
 //this class keeps track of who's turn it is and displays this information 
-//author : corbin martin
+//AUTHORS : Corbin Martin, Dakota Schaeffer, Muhamad Al-zughir
 public class TurnScoreboard extends JLabel {
     private boolean isPlayer1Turn = true;
 

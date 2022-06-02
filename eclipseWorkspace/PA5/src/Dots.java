@@ -15,9 +15,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.Font;
+import javax.swing.JLabel;
 
+//AUTHORS : Corbin Martin, Dakota Schaeffer, Muhamad Al-zughir
 //this is the main jframe class that contains the entire window
-//author : corbin martin
 public class Dots extends JFrame {
     //setting up the jcompnent variables that will be used for the jframe
     private GameBoard gameBoard = null;
@@ -25,16 +27,14 @@ public class Dots extends JFrame {
     private PlayerScoreboard player1Scoreboard = null;
     private NotificationBoard notificationBoard = null;
     private TurnScoreboard turnScoreboard = null;
-    private JTextField setPlayer1NameInput = null;
-    private JTextField setPlayer2NameInput = null;
     private JPanel contentPane = null;
     private JButton okButton = null;
     private final ButtonGroup connectionButtons = new ButtonGroup();
     private JTextField ipAddressInput = null;
-    private JTextField playerNameInput = null;
     private JTextField player2NameInput;
     private JTextField boardSizeInput = null;
     private JTextField player1NameInput;
+    private JLabel networkStatusLabel = null;
     
     public NetworkManager networkManager = null;
     
@@ -63,7 +63,7 @@ public class Dots extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 1069, 658);
         contentPane = new JPanel();
-        contentPane.setBackground(Color.GRAY);
+        contentPane.setBackground(Color.DARK_GRAY);
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(null);
@@ -74,7 +74,7 @@ public class Dots extends JFrame {
         notificationBoard.setName("notificationBoard");
         notificationBoard.setForeground(Color.WHITE);
         notificationBoard.setBackground(Color.RED);
-        notificationBoard.setBounds(613, 410, 427, 90);
+        notificationBoard.setBounds(613, 374, 427, 90);
         notificationBoard.setVisible(false);
         contentPane.add(notificationBoard);
         
@@ -82,7 +82,7 @@ public class Dots extends JFrame {
         //the ok button will only show itself when there is an pop up notification
         okButton = new JButton("OK");
         okButton.setName("okButton");
-        okButton.setBounds(954, 511, 89, 23);
+        okButton.setBounds(951, 474, 89, 23);
         contentPane.add(okButton);
         okButton.setVisible(false);
 
@@ -90,9 +90,10 @@ public class Dots extends JFrame {
         //the default name for player 1 is player 1 if you dont give it a name
         //at the start of the game the scoreboard is invisible until the game is started
         player1Scoreboard = new PlayerScoreboard("Player 1");
+        player1Scoreboard.setFont(new Font("Tahoma", Font.PLAIN, 20));
         player1Scoreboard.setName("player1Scoreboard");
-        player1Scoreboard.setForeground(Color.WHITE);
-        player1Scoreboard.setBounds(613, 545, 200, 23);
+        player1Scoreboard.setForeground(Color.RED);
+        player1Scoreboard.setBounds(613, 306, 233, 23);
         contentPane.add(player1Scoreboard);
         player1Scoreboard.setVisible(false);
         
@@ -100,17 +101,20 @@ public class Dots extends JFrame {
         //the default name for player 2 is player 2 if you dont give it a name
         //at the start of the game the scoreboard is invisible until the game is started
         player2Scoreboard = new PlayerScoreboard("Player 2");
+        player2Scoreboard.setFont(new Font("Tahoma", Font.PLAIN, 20));
         player2Scoreboard.setName("player2Scoreboard");
-        player2Scoreboard.setForeground(Color.WHITE);
-        player2Scoreboard.setBounds(613, 579, 200, 23);
+        player2Scoreboard.setForeground(Color.GREEN);
+        player2Scoreboard.setBounds(854, 306, 186, 23);
         contentPane.add(player2Scoreboard);
         player2Scoreboard.setVisible(false);
         
         //turnScoreboard tracks who's turn it is 
         //the turnscoreboard will be invisible until the game is started
         turnScoreboard = new TurnScoreboard();
+        turnScoreboard.setForeground(Color.BLUE);
+        turnScoreboard.setFont(new Font("Tahoma", Font.PLAIN, 20));
         turnScoreboard.setName("turnScoreboard");
-        turnScoreboard.setBounds(613, 511, 291, 23);
+        turnScoreboard.setBounds(616, 340, 424, 23);
         contentPane.add(turnScoreboard);
         turnScoreboard.setVisible(false);
 
@@ -125,71 +129,78 @@ public class Dots extends JFrame {
         
         JRadioButton serverRadioButton = new JRadioButton("server");
         connectionButtons.add(serverRadioButton);
-        serverRadioButton.setBounds(660, 11, 186, 23);
+        serverRadioButton.setBounds(613, 72, 233, 23);
         contentPane.add(serverRadioButton);
         
         JRadioButton clientRadioButton = new JRadioButton("client");
         connectionButtons.add(clientRadioButton);
-        clientRadioButton.setBounds(854, 11, 186, 23);
+        clientRadioButton.setBounds(854, 72, 186, 23);
         contentPane.add(clientRadioButton);
         
         JButton quitButton = new JButton("Quit");
-        quitButton.setBounds(660, 211, 380, 23);
+        quitButton.setBounds(613, 272, 427, 23);
         contentPane.add(quitButton);
         
         ipAddressInput = new JTextField();
         ipAddressInput.setEnabled(false);
-        ipAddressInput.setBounds(854, 177, 186, 23);
+        ipAddressInput.setBounds(854, 238, 186, 23);
         contentPane.add(ipAddressInput);
         ipAddressInput.setColumns(10);
         
         JButton ipAddressButton = new JButton("Enter Ip Address");
         ipAddressButton.setEnabled(false);
-        ipAddressButton.setBounds(854, 143, 186, 23);
+        ipAddressButton.setBounds(854, 204, 186, 23);
         contentPane.add(ipAddressButton);
         
         player2NameInput = new JTextField();
         player2NameInput.setEnabled(false);
         player2NameInput.setColumns(10);
-        player2NameInput.setBounds(854, 109, 186, 23);
+        player2NameInput.setBounds(854, 170, 186, 23);
         contentPane.add(player2NameInput);
         
         JButton player2NameButton = new JButton("Enter Player 2 Name");
         player2NameButton.setEnabled(false);
-        player2NameButton.setBounds(854, 75, 186, 23);
+        player2NameButton.setBounds(854, 136, 186, 23);
         contentPane.add(player2NameButton);
         
         JButton boardSizeButton = new JButton("Enter Board Size (max 12)");
         boardSizeButton.setEnabled(false);
-        boardSizeButton.setBounds(660, 143, 186, 23);
+        boardSizeButton.setBounds(613, 204, 233, 23);
         contentPane.add(boardSizeButton);
         
         boardSizeInput = new JTextField();
         boardSizeInput.setEnabled(false);
         boardSizeInput.setColumns(10);
-        boardSizeInput.setBounds(660, 177, 186, 23);
+        boardSizeInput.setBounds(613, 238, 233, 23);
         contentPane.add(boardSizeInput);
         
         JButton startButton = new JButton("Start");
         startButton.setEnabled(false);
-        startButton.setBounds(660, 41, 186, 23);
+        startButton.setBounds(613, 102, 233, 23);
         contentPane.add(startButton);
         
         JButton connectButton = new JButton("Connect");
         connectButton.setEnabled(false);
-        connectButton.setBounds(854, 41, 186, 23);
+        connectButton.setBounds(854, 102, 186, 23);
         contentPane.add(connectButton);
         
         JButton player1NameButton = new JButton("Enter Player 1 Name");
         player1NameButton.setEnabled(false);
-        player1NameButton.setBounds(660, 75, 186, 23);
+        player1NameButton.setBounds(613, 136, 233, 23);
         contentPane.add(player1NameButton);
         
         player1NameInput = new JTextField();
         player1NameInput.setEnabled(false);
         player1NameInput.setColumns(10);
-        player1NameInput.setBounds(660, 109, 186, 23);
+        player1NameInput.setBounds(613, 170, 233, 23);
         contentPane.add(player1NameInput);
+        
+        networkStatusLabel = new JLabel("Not Connected");
+        networkStatusLabel.setForeground(Color.YELLOW);
+        networkStatusLabel.setFont(new Font("Tahoma", Font.BOLD, 25));
+        networkStatusLabel.setBounds(613, 11, 427, 54);
+        networkStatusLabel.setName("networkStatusLabel");
+        contentPane.add(networkStatusLabel);
         gameBoard.setVisible(false);
 
         
@@ -282,8 +293,6 @@ public class Dots extends JFrame {
         gameBoard.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-
-
                 if (!networkManager.isServer()) {
                     if (!turnScoreboard.GetPlayerTurn()) {
                         networkManager.SyncClickInput(e.getX(), e.getY());
@@ -296,7 +305,6 @@ public class Dots extends JFrame {
                 }
             }
         });
-
 
         okButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -327,13 +335,6 @@ public class Dots extends JFrame {
         	@Override
         	public void keyPressed(KeyEvent e) {
                 if (e.getKeyChar() == '\n') {
-                    // player1Scoreboard.SetPlayerName(player1NameInput.getText());
-
-
-                    // //TODO MAKE SURE THIS SYNCS
-                    // // if (networkManager.isConnected)
-    
-                    // gameBoard.repaint();
                     if (networkManager.isConnected) networkManager.SyncName(player1NameInput.getText(), true);
                     else networkManager.SyncName(player1NameInput.getText(), false);
                 }
@@ -343,13 +344,6 @@ public class Dots extends JFrame {
         player2NameButton.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mousePressed(MouseEvent e) {
-                // player2Scoreboard.SetPlayerName(player2NameInput.getText());
-
-
-                // //TODO MAKE SURE THIS SYNCS
-                // // if (networkManager.isConnected)
-
-                // gameBoard.repaint();
                 if (networkManager.isConnected) networkManager.SyncName(player2NameInput.getText(), true);
                 else networkManager.SyncName(player2NameInput.getText(), false);
         	}
@@ -359,13 +353,6 @@ public class Dots extends JFrame {
         	@Override
         	public void keyPressed(KeyEvent e) {
                 if (e.getKeyChar() == '\n') {
-                    // player2Scoreboard.SetPlayerName(player2NameInput.getText());
-
-
-                    // //TODO MAKE SURE THIS SYNCS
-                    // // if (networkManager.isConnected)
-    
-                    // gameBoard.repaint();
                     if (networkManager.isConnected) networkManager.SyncName(player2NameInput.getText(), true);
                     else networkManager.SyncName(player2NameInput.getText(), false);
                 }
@@ -384,7 +371,7 @@ public class Dots extends JFrame {
         gameBoard.InitGameBoard();
     }
 
-    //sets the components of the game visible
+    //this function sets the components of the game visible
     public void SetGameComponentsVisible() {
         turnScoreboard.setVisible(true);
         player1Scoreboard.setVisible(true);

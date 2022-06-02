@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import java.awt.Color;
 
 //this is the main gameboard class that stores which boxes and sides are claimed and handles user input and draws the game itself
-//author : corbin martin
+//AUTHORS : Corbin Martin, Dakota Schaeffer, Muhamad Al-zughir
 public class GameBoard extends JPanel {
     //pixel size constants
     private final int BOX_SIZE = 50;

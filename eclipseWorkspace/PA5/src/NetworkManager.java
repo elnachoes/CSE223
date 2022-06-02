@@ -1,29 +1,32 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
-
-import javax.naming.InitialContext;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import java.awt.Component;
 import java.io.PrintWriter;
 
+
+//AUTHORS : Corbin Martin, Dakota Schaeffer, Muhamad Al-zughir
+//this class allows for network interaction between the two clients
+//it will spin up a thread for reading data from each other
 public class NetworkManager extends Thread{
     private boolean isServer = false;
-    private final int STANDARD_PORT = 1234;
+    private final int STANDARD_PORT = 1234; //the regular port is 1234
     private ServerSocket serverSide = null;
     private Socket clientSide = null;
     private Scanner readFromClient = null;
     private PrintWriter sendToClient = null;
     private JComponent rootNode = null;
     private GameBoard gameBoard = null;
-    private String ipAddress = null;
+    private String ipAddress = "127.0.0.1"; //defaults to localhost
     private Dots dotsGameWindow = null;
-    public boolean isConnected = false;
-
+    private JLabel networkStatusLabel = null;
     private PlayerScoreboard player1Scoreboard = null;
     private PlayerScoreboard player2Scoreboard = null;
+    public boolean isConnected = false;
 
-
+    //this ctor requires knowing if the application is the client or the server and it needs the root node
     public NetworkManager(boolean isServer, JComponent rootNode) {
         super();
         this.rootNode = rootNode;
@@ -32,10 +35,13 @@ public class NetworkManager extends Thread{
         Init();
     }
     
+    //this method returns what the value of isserver is
     public boolean isServer() { return isServer; }
 
+    //this method allows you to set the ip address
     public void SetIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 
+    //this method gets all the necessary child components
     public void Init() {
         for (Component component : rootNode.getComponents()) {
             if (component.getName() == null) continue;
@@ -49,13 +55,21 @@ public class NetworkManager extends Thread{
             if (component.getName().compareTo("player2Scoreboard") == 0) {
                 this.player2Scoreboard = (PlayerScoreboard)component;
             }
+            if (component.getName().compareTo("networkStatusLabel") == 0) {
+                this.networkStatusLabel = (JLabel)component;
+            }
         }
     }
 
+    //this method hosts the server and syncs the name board size and the game start
     public void HostServer() {
         //TODO : split this up when things are working
         try {
             serverSide = new ServerSocket(STANDARD_PORT);
+
+            networkStatusLabel.setText("hosting... waiting on connection");
+            networkStatusLabel.repaint();
+
             clientSide = serverSide.accept();
             readFromClient = new Scanner(clientSide.getInputStream());
             sendToClient = new PrintWriter(clientSide.getOutputStream());
@@ -63,6 +77,9 @@ public class NetworkManager extends Thread{
             System.out.println(e);
         }
         
+        networkStatusLabel.setText("hosting... player connected");
+        networkStatusLabel.repaint();
+
         isConnected = true;
         
         SyncBoardSize(gameBoard.GetBoardSize(), true);
@@ -72,6 +89,7 @@ public class NetworkManager extends Thread{
         System.out.println("someone connected");
     }
     
+    //this method connects to the server and synchronizes the name
     public boolean ConnectToServer() {
         if (ipAddress == null) {
             System.out.println("error : ip address was null");
@@ -79,14 +97,23 @@ public class NetworkManager extends Thread{
         }
         //TODO : split this up when things are working
         try {
+            networkStatusLabel.setText("connecting... trying to connect");
+            networkStatusLabel.repaint();
+            
             clientSide = new Socket(ipAddress, STANDARD_PORT);
             readFromClient = new Scanner(clientSide.getInputStream());
             sendToClient = new PrintWriter(clientSide.getOutputStream());
         } catch (Exception e) {
             System.out.println(e);
+            networkStatusLabel.setText("failed connection...");
+            networkStatusLabel.repaint();
+
             return false;
         }
         
+        networkStatusLabel.setText("connecting... connected to server");
+        networkStatusLabel.repaint();
+
         isConnected = true;
 
         SyncName(player2Scoreboard.GetPlayerName(), true);
@@ -95,6 +122,7 @@ public class NetworkManager extends Thread{
         return true;
     }
 
+    //this method syncs the game on all network members
     public void SyncStartGame() {
         if (!isConnected) return;
         
@@ -105,7 +133,8 @@ public class NetworkManager extends Thread{
             sendToClient.flush();
         }
     }
-
+    
+    //this method syncs the input on all network members
     public void SyncClickInput(int x, int y) {
         if (!isConnected) return;
         sendToClient.println("click " + x + " " + y);
@@ -113,9 +142,10 @@ public class NetworkManager extends Thread{
     }
     
     
+    //this method syncs the names on all network members
     public void SyncName(String name, boolean sync) {
         // boolean wasCalledRemotely = (name.split(" ")[0].compareTo("name") == 0);
-
+        
         if (sync && isConnected) {
             if (isServer) {
                 player1Scoreboard.SetPlayerName(name);
@@ -133,23 +163,16 @@ public class NetworkManager extends Thread{
             }
         }
         else if (!sync && isConnected) {
-            if (isServer) {
-                player2Scoreboard.SetPlayerName(name);
-            }
-            else {
-                player1Scoreboard.SetPlayerName(name);
-            }
+            if (isServer) player2Scoreboard.SetPlayerName(name);
+            else player1Scoreboard.SetPlayerName(name);
         }
         else {
-            if (isServer) {
-                player1Scoreboard.SetPlayerName(name);
-            }
-            else {
-                player2Scoreboard.SetPlayerName(name);
-            }
+            if (isServer) player1Scoreboard.SetPlayerName(name);
+            else player2Scoreboard.SetPlayerName(name);
         }
     }
     
+    //this method syncs the board size on all network members
     public void SyncBoardSize(int size, boolean sync) {
         gameBoard.SetBoardSize(size);
 
@@ -162,10 +185,7 @@ public class NetworkManager extends Thread{
             gameBoard.SetBoardSize(size);
             dotsGameWindow.NewGame();
         }
-        else {
-            gameBoard.SetBoardSize(size);
-        }
-
+        else gameBoard.SetBoardSize(size);
     }
 
     //this method is the thread that will continuously wait for input from the other connection
@@ -174,6 +194,7 @@ public class NetworkManager extends Thread{
         if (isServer) HostServer();
         if (readFromClient == null || clientSide == null || !isConnected) return;
 
+        //this loop will wait and analyze input on the socket and call the methods accordingly
         while (readFromClient.hasNextLine()) {
             String nextLine = readFromClient.nextLine();
             
