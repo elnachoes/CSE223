@@ -32,6 +32,8 @@ public class NetworkManager extends Thread{
         Init();
     }
     
+    public boolean isServer() { return isServer; }
+
     public void SetIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 
     public void Init() {
@@ -64,16 +66,17 @@ public class NetworkManager extends Thread{
         
         isConnected = true;
         
-        SyncStartGame();
+        SyncBoardSize(gameBoard.GetBoardSize());
         SyncName(player1Scoreboard.GetPlayerName());
+        SyncStartGame();
         
         System.out.println("someone connected");
     }
     
-    public void ConnectToServer() {
+    public boolean ConnectToServer() {
         if (ipAddress == null) {
             System.out.println("error : ip address was null");
-            return;
+            return false;
         }
         //TODO : split this up when things are working
         try {
@@ -82,13 +85,15 @@ public class NetworkManager extends Thread{
             sendToClient = new PrintWriter(clientSide.getOutputStream());
         } catch (Exception e) {
             System.out.println(e);
+            return false;
         }
         
         isConnected = true;
-        
+
         SyncName(player2Scoreboard.GetPlayerName());
         
         System.out.println("connected successfully");
+        return true;
     }
 
     public void SyncStartGame() {
@@ -105,14 +110,21 @@ public class NetworkManager extends Thread{
     
     public void SyncClickInput(int x, int y) {
         if (!isConnected) return;
-        
+        sendToClient.println("click " + x + " " + y);
+        sendToClient.flush();
     }
     
     public void SyncQuitGame() {
-        if (!isConnected) return;
         
+        if (isConnected) {
+            
+        }
+
+        System.exit(0);
     }
     
+
+    //FIX THIS ITS CUTTING NAMES OFF IF THEY HAVE SPACES
     public void SyncName(String name) {
         boolean wasCalledRemotely = (name.split(" ")[0].compareTo("name") == 0);
 
@@ -143,7 +155,13 @@ public class NetworkManager extends Thread{
     }
     
     public void SyncBoardSize(int size) {
-        if (!isConnected) return;
+        gameBoard.SetBoardSize(size);
+
+        if (isConnected) {
+            sendToClient.println("boardsize " + size);
+            sendToClient.flush();
+            dotsGameWindow.NewGame();
+        }
 
     }
 
@@ -151,9 +169,9 @@ public class NetworkManager extends Thread{
     @Override
     public void run() {
         if (isServer) HostServer();
-        else ConnectToServer();
+        // else ConnectToServer();
 
-        if (readFromClient == null || clientSide == null) return;
+        if (readFromClient == null || clientSide == null || !isConnected) return;
 
         while (readFromClient.hasNextLine()) {
             String nextLine = readFromClient.nextLine();
@@ -168,7 +186,16 @@ public class NetworkManager extends Thread{
                 SyncName(nextLine);
             } 
 
-            //TODO : PROCESS NETWORK MESSAGES HERE
+            if (messages[0].compareTo("click") == 0) {
+                gameBoard.HandleMouseClick(Integer.parseInt(messages[1]), Integer.parseInt(messages[2]));
+            }
+
+            if (messages[0].compareTo("boardsize") == 0) {
+                gameBoard.SetBoardSize(Integer.parseInt(messages[1]));
+                dotsGameWindow.NewGame();
+            }
         }
+
+        System.exit(0);
     }
 }

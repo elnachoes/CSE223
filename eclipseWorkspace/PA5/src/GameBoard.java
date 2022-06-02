@@ -29,6 +29,8 @@ public class GameBoard extends JPanel {
     //array of boxes to store the state of the game
     private GameBox boardBoxes[][] = null;
 
+    private NetworkManager networkManager = null;
+
     //this method that sets the board size and stops it from going over a maximum
     public void SetBoardSize(int newSize) {
     	if (!(newSize > MAX_BOARD_SIZE)) {
@@ -36,6 +38,8 @@ public class GameBoard extends JPanel {
         }
     }
     
+    public int GetBoardSize() { return boardSize; }
+
     //this method will set up the game board at the start of the game
     //this method will get the sibling components and initialize the box array
     public void InitGameBoard() {
@@ -59,6 +63,9 @@ public class GameBoard extends JPanel {
             if (component.getName().compareTo("okButton") == 0) {
                 this.okButton = (JButton)component;
             }
+
+            Dots frame = (Dots)getTopLevelAncestor();
+            networkManager = frame.networkManager;
         }
 
         // initialize the board boxes
@@ -300,6 +307,7 @@ public class GameBoard extends JPanel {
         if (turnScoreboard == null) return false;
         if (player1Scoreboard == null) return false;
         if (player2Scoreboard == null) return false;
+
         box.CheckIfClaimed(turnScoreboard.GetPlayerTurn());
         //if it has been claimed update the scoreboards
         if (box.isClaimed) {
@@ -334,6 +342,7 @@ public class GameBoard extends JPanel {
         if (turnScoreboard == null) return;
         if (player1Scoreboard == null) return;
         if (player2Scoreboard == null) return;
+        if (networkManager == null) return;
 
         //update boxes will update the boxes array and if it returns false the player made an illegal move so return
         if (!UpdateBoxes(x, y)) return;
@@ -359,6 +368,10 @@ public class GameBoard extends JPanel {
         if (!bonusTurn) {
             turnScoreboard.SwitchTurn();
             turnScoreboard.repaint();
+        }
+
+        if (networkManager.isServer()) {
+            networkManager.SyncClickInput(x, y);
         }
 
         repaint();

@@ -34,9 +34,10 @@ public class Dots extends JFrame {
     private JTextField playerNameInput = null;
     private JTextField player2NameInput;
     private JTextField boardSizeInput = null;
-    private NetworkManager networkManager = null;
     private JTextField player1NameInput;
-
+    
+    public NetworkManager networkManager = null;
+    
     //this function is the main function and it instantiates the frame
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -196,6 +197,7 @@ public class Dots extends JFrame {
         startButton.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mousePressed(MouseEvent e) {
+                // networkManager.HostServer();
                 networkManager.start();
         	}
         });
@@ -203,7 +205,8 @@ public class Dots extends JFrame {
         connectButton.addMouseListener(new MouseAdapter() {
             @Override
         	public void mousePressed(MouseEvent e) {
-                networkManager.start();
+                networkManager.ConnectToServer();
+                if (networkManager.isConnected) networkManager.start();
         	}
         });
         
@@ -255,24 +258,39 @@ public class Dots extends JFrame {
         boardSizeInput.addKeyListener(new KeyAdapter() {
         	@Override
         	public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == '\n') {
+                    networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()));
+                }
         	}
         });
 
         boardSizeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                
+                networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()));
             }
         });
         
         quitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                System.exit(0);
             }
         });
 
         gameBoard.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                gameBoard.HandleMouseClick(e.getX(),e.getY());
+
+
+                if (!networkManager.isServer()) {
+                    if (!turnScoreboard.GetPlayerTurn()) {
+                        networkManager.SyncClickInput(e.getX(), e.getY());
+                    }
+                }
+                else {
+                    if (turnScoreboard.GetPlayerTurn()) {
+                        gameBoard.HandleMouseClick(e.getX(),e.getY());
+                    }
+                }
             }
         });
 
