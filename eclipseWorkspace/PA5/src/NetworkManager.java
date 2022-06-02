@@ -20,6 +20,10 @@ public class NetworkManager extends Thread{
     private Dots dotsGameWindow = null;
     public boolean isConnected = false;
 
+    private PlayerScoreboard player1Scoreboard = null;
+    private PlayerScoreboard player2Scoreboard = null;
+
+
     public NetworkManager(boolean isServer, JComponent rootNode) {
         super();
         this.rootNode = rootNode;
@@ -38,6 +42,12 @@ public class NetworkManager extends Thread{
             if (component.getName().compareTo("gameBoard") == 0) {
                 this.gameBoard = (GameBoard)component;
             }
+            if (component.getName().compareTo("player1Scoreboard") == 0) {
+                this.player1Scoreboard = (PlayerScoreboard)component;
+            }
+            if (component.getName().compareTo("player2Scoreboard") == 0) {
+                this.player2Scoreboard = (PlayerScoreboard)component;
+            }
         }
     }
 
@@ -52,9 +62,10 @@ public class NetworkManager extends Thread{
             System.out.println(e);
         }
         
-        SyncStartGame();
-        
         isConnected = true;
+        
+        SyncStartGame();
+        SyncName(player1Scoreboard.GetPlayerName());
         
         System.out.println("someone connected");
     }
@@ -75,37 +86,64 @@ public class NetworkManager extends Thread{
         
         isConnected = true;
         
+        SyncName(player2Scoreboard.GetPlayerName());
+        
         System.out.println("connected successfully");
     }
 
-    public void SendMessage(String message) {
-        sendToClient.println(message);
-        sendToClient.flush();
-    }
-
     public void SyncStartGame() {
+        if (!isConnected) return;
+        
         dotsGameWindow.NewGame();
         dotsGameWindow.SetGameComponentsVisible();
         if (isServer) {
-            sendToClient.println("NewGame");
+            sendToClient.println("newgame");
             sendToClient.flush();
         }
     }
-
-
+    
+    
     public void SyncClickInput(int x, int y) {
-
+        if (!isConnected) return;
+        
     }
-
+    
     public void SyncQuitGame() {
-
+        if (!isConnected) return;
+        
     }
-
+    
     public void SyncName(String name) {
+        boolean wasCalledRemotely = (name.split(" ")[0].compareTo("name") == 0);
 
+        if (!wasCalledRemotely) {
+            if (isServer) {
+                player1Scoreboard.SetPlayerName(name);
+                if (isConnected) {
+                    sendToClient.println("name " + name);
+                    sendToClient.flush();
+                }
+            }
+            else {
+                player2Scoreboard.SetPlayerName(name);
+                if (isConnected) {
+                    sendToClient.println("name " + name);
+                    sendToClient.flush();
+                }
+            }
+        }
+        else {
+            if (isServer) {
+                player2Scoreboard.SetPlayerName(name.split(" ")[1]);
+            }
+            else {
+                player1Scoreboard.SetPlayerName(name.split(" ")[1]);
+            }
+        }
     }
-
+    
     public void SyncBoardSize(int size) {
+        if (!isConnected) return;
 
     }
 
@@ -122,9 +160,13 @@ public class NetworkManager extends Thread{
             
             String[] messages = nextLine.split(" ");
 
-            if (messages[0].compareTo("NewGame") == 0) {
+            if (messages[0].compareTo("newgame") == 0) {
                 SyncStartGame();
             }
+
+            if (messages[0].compareTo("name") == 0) {
+                SyncName(nextLine);
+            } 
 
             //TODO : PROCESS NETWORK MESSAGES HERE
         }

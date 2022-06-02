@@ -221,7 +221,7 @@ public class Dots extends JFrame {
             }
         });
         
-        //when the client button is clicked
+        //when the client button is c licked
         clientRadioButton.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 //set the menu buttons visible for a client
@@ -287,22 +287,63 @@ public class Dots extends JFrame {
             }
         });
 
+        player1NameButton.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mousePressed(MouseEvent e) {
+                // player1Scoreboard.SetPlayerName(player1NameInput.getText());
+
+
+                // //TODO MAKE SURE THIS SYNCS
+                // // if (networkManager.isConnected)
+
+                // gameBoard.repaint();
+                networkManager.SyncName(player1NameInput.getText());
+        	}
+        });
+
+        player1NameInput.addKeyListener(new KeyAdapter() {
+        	@Override
+        	public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == '\n') {
+                    // player1Scoreboard.SetPlayerName(player1NameInput.getText());
+
+
+                    // //TODO MAKE SURE THIS SYNCS
+                    // // if (networkManager.isConnected)
+    
+                    // gameBoard.repaint();
+                    networkManager.SyncName(player1NameInput.getText());
+                }
+        	}
+        });
+
         player2NameButton.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mousePressed(MouseEvent e) {
-                player2Scoreboard.SetPlayerName(player2NameInput.getText());
+                // player2Scoreboard.SetPlayerName(player2NameInput.getText());
 
 
-                //TODO MAKE SURE THIS SYNCS
-                // if (networkManager.isConnected)
+                // //TODO MAKE SURE THIS SYNCS
+                // // if (networkManager.isConnected)
 
-                gameBoard.repaint();
+                // gameBoard.repaint();
+                networkManager.SyncName(player2NameInput.getText());
         	}
         });
 
         player2NameInput.addKeyListener(new KeyAdapter() {
         	@Override
         	public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == '\n') {
+                    // player2Scoreboard.SetPlayerName(player2NameInput.getText());
+
+
+                    // //TODO MAKE SURE THIS SYNCS
+                    // // if (networkManager.isConnected)
+    
+                    // gameBoard.repaint();
+                    networkManager.SyncName(player2NameInput.getText());
+                }
         	}
         });
         //start a new game
