@@ -198,7 +198,8 @@ public class Dots extends JFrame {
         	@Override
         	public void mousePressed(MouseEvent e) {
                 // networkManager.HostServer();
-                networkManager.start();
+                if (!networkManager.isConnected) networkManager.start();
+                else networkManager.SyncStartGame();
         	}
         });
         
@@ -259,14 +260,16 @@ public class Dots extends JFrame {
         	@Override
         	public void keyPressed(KeyEvent e) {
                 if (e.getKeyChar() == '\n') {
-                    networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()));
+                    if (networkManager.isConnected) networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()), true);
+                    else networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()), false);
                 }
         	}
         });
 
         boardSizeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()));
+                if (networkManager.isConnected) networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()), true);
+                else networkManager.SyncBoardSize(Integer.parseInt(boardSizeInput.getText()), false);
             }
         });
         
@@ -315,7 +318,8 @@ public class Dots extends JFrame {
                 // // if (networkManager.isConnected)
 
                 // gameBoard.repaint();
-                networkManager.SyncName(player1NameInput.getText());
+                if (networkManager.isConnected) networkManager.SyncName(player1NameInput.getText(), true);
+                else networkManager.SyncName(player1NameInput.getText(), false);
         	}
         });
 
@@ -330,7 +334,8 @@ public class Dots extends JFrame {
                     // // if (networkManager.isConnected)
     
                     // gameBoard.repaint();
-                    networkManager.SyncName(player1NameInput.getText());
+                    if (networkManager.isConnected) networkManager.SyncName(player1NameInput.getText(), true);
+                    else networkManager.SyncName(player1NameInput.getText(), false);
                 }
         	}
         });
@@ -345,7 +350,8 @@ public class Dots extends JFrame {
                 // // if (networkManager.isConnected)
 
                 // gameBoard.repaint();
-                networkManager.SyncName(player2NameInput.getText());
+                if (networkManager.isConnected) networkManager.SyncName(player2NameInput.getText(), true);
+                else networkManager.SyncName(player2NameInput.getText(), false);
         	}
         });
 
@@ -360,7 +366,8 @@ public class Dots extends JFrame {
                     // // if (networkManager.isConnected)
     
                     // gameBoard.repaint();
-                    networkManager.SyncName(player2NameInput.getText());
+                    if (networkManager.isConnected) networkManager.SyncName(player2NameInput.getText(), true);
+                    else networkManager.SyncName(player2NameInput.getText(), false);
                 }
         	}
         });

@@ -37,7 +37,6 @@ public class NetworkManager extends Thread{
     public void SetIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 
     public void Init() {
-        //TODO : INITIALIZE REFERENCES TO CHILD NODES
         for (Component component : rootNode.getComponents()) {
             if (component.getName() == null) continue;
 
@@ -66,8 +65,8 @@ public class NetworkManager extends Thread{
         
         isConnected = true;
         
-        SyncBoardSize(gameBoard.GetBoardSize());
-        SyncName(player1Scoreboard.GetPlayerName());
+        SyncBoardSize(gameBoard.GetBoardSize(), true);
+        SyncName(player1Scoreboard.GetPlayerName(), true);
         SyncStartGame();
         
         System.out.println("someone connected");
@@ -90,7 +89,7 @@ public class NetworkManager extends Thread{
         
         isConnected = true;
 
-        SyncName(player2Scoreboard.GetPlayerName());
+        SyncName(player2Scoreboard.GetPlayerName(), true);
         
         System.out.println("connected successfully");
         return true;
@@ -106,29 +105,18 @@ public class NetworkManager extends Thread{
             sendToClient.flush();
         }
     }
-    
-    
+
     public void SyncClickInput(int x, int y) {
         if (!isConnected) return;
         sendToClient.println("click " + x + " " + y);
         sendToClient.flush();
     }
     
-    public void SyncQuitGame() {
-        
-        if (isConnected) {
-            
-        }
-
-        System.exit(0);
-    }
     
+    public void SyncName(String name, boolean sync) {
+        // boolean wasCalledRemotely = (name.split(" ")[0].compareTo("name") == 0);
 
-    //FIX THIS ITS CUTTING NAMES OFF IF THEY HAVE SPACES
-    public void SyncName(String name) {
-        boolean wasCalledRemotely = (name.split(" ")[0].compareTo("name") == 0);
-
-        if (!wasCalledRemotely) {
+        if (sync && isConnected) {
             if (isServer) {
                 player1Scoreboard.SetPlayerName(name);
                 if (isConnected) {
@@ -144,23 +132,38 @@ public class NetworkManager extends Thread{
                 }
             }
         }
-        else {
+        else if (!sync && isConnected) {
             if (isServer) {
-                player2Scoreboard.SetPlayerName(name.split(" ")[1]);
+                player2Scoreboard.SetPlayerName(name);
             }
             else {
-                player1Scoreboard.SetPlayerName(name.split(" ")[1]);
+                player1Scoreboard.SetPlayerName(name);
+            }
+        }
+        else {
+            if (isServer) {
+                player1Scoreboard.SetPlayerName(name);
+            }
+            else {
+                player2Scoreboard.SetPlayerName(name);
             }
         }
     }
     
-    public void SyncBoardSize(int size) {
+    public void SyncBoardSize(int size, boolean sync) {
         gameBoard.SetBoardSize(size);
 
-        if (isConnected) {
+        if (sync && isConnected) {
             sendToClient.println("boardsize " + size);
             sendToClient.flush();
             dotsGameWindow.NewGame();
+        }
+        else if (!sync && isConnected) {
+            gameBoard.SetBoardSize(size);
+            dotsGameWindow.NewGame();
+        }
+        else {
+            gameBoard.SetBoardSize(size);
         }
 
     }
@@ -169,8 +172,6 @@ public class NetworkManager extends Thread{
     @Override
     public void run() {
         if (isServer) HostServer();
-        // else ConnectToServer();
-
         if (readFromClient == null || clientSide == null || !isConnected) return;
 
         while (readFromClient.hasNextLine()) {
@@ -183,7 +184,8 @@ public class NetworkManager extends Thread{
             }
 
             if (messages[0].compareTo("name") == 0) {
-                SyncName(nextLine);
+                String fullname = nextLine.substring(5, nextLine.length());
+                SyncName(fullname, false);
             } 
 
             if (messages[0].compareTo("click") == 0) {
@@ -191,8 +193,7 @@ public class NetworkManager extends Thread{
             }
 
             if (messages[0].compareTo("boardsize") == 0) {
-                gameBoard.SetBoardSize(Integer.parseInt(messages[1]));
-                dotsGameWindow.NewGame();
+                SyncBoardSize(Integer.parseInt(messages[1]), false);
             }
         }
 
